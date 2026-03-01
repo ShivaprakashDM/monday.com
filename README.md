@@ -58,3 +58,4 @@ This app is ready to be hosted on Streamlit Community Cloud. Simply connect your
 - Streamlit
 - LangChain / Google GenAI (Gemini)
 - Pandas
+- Pandas
