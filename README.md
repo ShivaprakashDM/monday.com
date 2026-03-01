@@ -15,14 +15,13 @@ In the root directory of your project (same folder as `streamlit_app.py`), you m
 
 Your `.env` file should look exactly like this:
 ```
-MONDAY_API_KEY=eyJhbGciOiJIUzI1NiJ9.eyJ0aWQiOjYyNzI4MTYwNSwiYWFpIjoxMSwidWlkIjoxMDA0NTUzOTEsImlhZCI6IjIwMjYtMDMtMDFUMTc6NDc6NTcuMDAwWiIsInBlciI6Im1lOndyaXRlIiwiYWN0aWQiOjM0MDIxMDE2LCJyZ24iOiJhcHNlMiJ9.TNwEZu5Kp5BzyFnIrVTxTgRxXGCjDQM0kn07BGEC7MU
-GEMINI_API_KEY=AIzaSyBE8z3f5b0jKh_oxNhPf5z7pzF8d_hQnpg
-//OPENAI_API_KEY=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//
-DEALS_BOARD_ID=5026919901
-WORK_ORDERS_BOARD_ID=5026919962
+MONDAY_API_KEY=Your_Monday_API_Key
+GEMINI_API_KEY=Your_GEMINI_API_KEY
+OPENAI_API_KEY=optional
+DEALS_BOARD_ID=Your_DEALS_BOARD_ID
+WORK_ORDERS_BOARD_ID=your_WORK_ORDERS_BOARD_ID
 
 ```
-*(If Monday API keys are omitted, the app gracefully falls back to using the local `Deal funnel Data.xlsx` and `Work_Order_Tracker Data.xlsx` files for immediate testing).*
 
 **Step 2. Install Dependencies**
 Open your terminal, navigate to the project directory, and install the required Python packages:
