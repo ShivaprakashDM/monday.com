@@ -22,7 +22,6 @@ DEALS_BOARD_ID=Your_DEALS_BOARD_ID
 WORK_ORDERS_BOARD_ID=your_WORK_ORDERS_BOARD_ID
 
 ```
-*(If Monday API keys are omitted, the app gracefully falls back to using the local `Deal funnel Data.xlsx` and `Work_Order_Tracker Data.xlsx` files for immediate testing).*
 
 **Step 2. Install Dependencies**
 Open your terminal, navigate to the project directory, and install the required Python packages:
