@@ -25,22 +25,29 @@ with st.sidebar:
     st.title("⚙️ Agent Settings")
     st.markdown("Configure your live API connection below.")
     
-    # API Keys
-    api_key = st.text_input("Monday.com API Key", value=os.getenv("MONDAY_API_KEY", ""), type="password")
-    openai_key = st.text_input("Gemini API Key", value=os.getenv("GEMINI_API_KEY", ""), type="password")
-    
-    st.markdown("---")
-    
     # Board IDs
     deals_board = st.text_input("Deals Board ID", value=os.getenv("DEALS_BOARD_ID", "123456789"))
     wo_board = st.text_input("Work Orders Board ID", value=os.getenv("WORK_ORDERS_BOARD_ID", "987654321"))
     
     if st.button("Save Configuration"):
-        if api_key: os.environ["MONDAY_API_KEY"] = api_key
-        if openai_key: os.environ["GEMINI_API_KEY"] = openai_key
-        if deals_board: os.environ["DEALS_BOARD_ID"] = deals_board
-        if wo_board: os.environ["WORK_ORDERS_BOARD_ID"] = wo_board
-        st.success("Configuration saved for this session!")
+        valid = True
+        if not deals_board or not deals_board.isdigit():
+            st.error("Deals Board ID must be numerical digits and non-empty.")
+            valid = False
+        if not wo_board or not wo_board.isdigit():
+            st.error("Work Orders Board ID must be numerical digits and non-empty.")
+            valid = False
+            
+        if valid:
+            os.environ["DEALS_BOARD_ID"] = deals_board
+            os.environ["WORK_ORDERS_BOARD_ID"] = wo_board
+            st.success("Configuration saved for this session!")
+
+    if st.button("Test Connection"):
+        if not os.getenv("MONDAY_API_KEY") or not os.getenv("GEMINI_API_KEY"):
+            st.error("API key not configured on server")
+        else:
+            st.success("API connection ready!")
 
     st.markdown("---")
     st.markdown("### Suggested Queries")
@@ -72,8 +79,8 @@ if prompt := st.chat_input("E.g., Which deals are stuck in execution?"):
     with st.chat_message("user"):
         st.markdown(prompt)
         
-    if not os.getenv("GEMINI_API_KEY"):
-        st.error("Please provide a Gemini API Key in the sidebar to run the agent.")
+    if not os.getenv("MONDAY_API_KEY") or not os.getenv("GEMINI_API_KEY"):
+        st.error("API key not configured on server")
         st.stop()
 
     # Agent Processing
@@ -96,4 +103,15 @@ if prompt := st.chat_input("E.g., Which deals are stuck in execution?"):
             st.rerun()
             
         except Exception as e:
-            st.error(f"Agent encountered a fatal error: {str(e)}")
+            error_msg = str(e)
+            
+            # Redact secrets from the exception trace
+            monday_key = os.getenv("MONDAY_API_KEY")
+            gemini_key = os.getenv("GEMINI_API_KEY")
+            
+            if monday_key and monday_key in error_msg:
+                error_msg = error_msg.replace(monday_key, "***REDACTED***")
+            if gemini_key and gemini_key in error_msg:
+                error_msg = error_msg.replace(gemini_key, "***REDACTED***")
+                
+            st.error(f"Agent encountered a fatal error: {error_msg}")
