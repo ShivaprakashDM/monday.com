@@ -6,8 +6,18 @@ sys.path.append(os.path.join(os.path.dirname(__file__), 'app'))
 from dotenv import load_dotenv
 from agent import run_agent_query, action_traces
 
-# Load environment variables (API keys, board IDs)
+# Load environment variables (API keys, board IDs) for local dev
 load_dotenv()
+
+# Securely load API Keys from Streamlit Secrets or Environment Variables
+MONDAY_API_KEY = st.secrets.get("MONDAY_API_KEY") or os.getenv("MONDAY_API_KEY")
+GEMINI_API_KEY = st.secrets.get("GEMINI_API_KEY") or os.getenv("GEMINI_API_KEY")
+
+# Ensure keys are available in the os environment so downstream modules (like agent.py) can find them easily
+if MONDAY_API_KEY:
+    os.environ["MONDAY_API_KEY"] = MONDAY_API_KEY
+if GEMINI_API_KEY:
+    os.environ["GEMINI_API_KEY"] = GEMINI_API_KEY
 
 st.set_page_config(
     page_title="Monday.com BI Agent",
@@ -44,10 +54,10 @@ with st.sidebar:
             st.success("Configuration saved for this session!")
 
     if st.button("Test Connection"):
-        if not os.getenv("MONDAY_API_KEY") or not os.getenv("GEMINI_API_KEY"):
-            st.error("API key not configured on server")
+        if not MONDAY_API_KEY or not GEMINI_API_KEY:
+            st.error("Server API keys are not configured.")
         else:
-            st.success("API connection ready!")
+            st.success("Connection successful")
 
     st.markdown("---")
     st.markdown("### Suggested Queries")
@@ -59,6 +69,10 @@ with st.sidebar:
 # --- Main UI ---
 st.title("🤖 Monday.com Founder BI Agent")
 st.markdown("Ask natural language questions to analyze your live Deals and Work Orders boards.")
+
+if not MONDAY_API_KEY or not GEMINI_API_KEY:
+    st.error("Server API keys are not configured.")
+    st.stop()
 
 # Display Chat History
 for msg in st.session_state.messages:
@@ -78,10 +92,6 @@ if prompt := st.chat_input("E.g., Which deals are stuck in execution?"):
     st.session_state.messages.append({"role": "user", "content": prompt})
     with st.chat_message("user"):
         st.markdown(prompt)
-        
-    if not os.getenv("MONDAY_API_KEY") or not os.getenv("GEMINI_API_KEY"):
-        st.error("API key not configured on server")
-        st.stop()
 
     # Agent Processing
     with st.chat_message("assistant"):
@@ -106,12 +116,9 @@ if prompt := st.chat_input("E.g., Which deals are stuck in execution?"):
             error_msg = str(e)
             
             # Redact secrets from the exception trace
-            monday_key = os.getenv("MONDAY_API_KEY")
-            gemini_key = os.getenv("GEMINI_API_KEY")
-            
-            if monday_key and monday_key in error_msg:
-                error_msg = error_msg.replace(monday_key, "***REDACTED***")
-            if gemini_key and gemini_key in error_msg:
-                error_msg = error_msg.replace(gemini_key, "***REDACTED***")
+            if MONDAY_API_KEY and MONDAY_API_KEY in error_msg:
+                error_msg = error_msg.replace(MONDAY_API_KEY, "***REDACTED***")
+            if GEMINI_API_KEY and GEMINI_API_KEY in error_msg:
+                error_msg = error_msg.replace(GEMINI_API_KEY, "***REDACTED***")
                 
             st.error(f"Agent encountered a fatal error: {error_msg}")
