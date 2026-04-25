@@ -67,7 +67,7 @@ with st.sidebar:
 
 
 # --- Main UI ---
-st.title("🤖 Monday.com Founder BI Agent")
+st.title("🤖 BI Agent")
 st.markdown("Ask natural language questions to analyze your live Deals and Work Orders boards.")
 
 if not MONDAY_API_KEY or not GEMINI_API_KEY:
